@@ -9,7 +9,7 @@ const mainRouter = require('./routes/index')
 
 const app = express();
 
-const PORT = 4000;
+const PORT = process.env.SERVER_PORT;
 
 app.use(bodyParser.json());
 app.use(
