@@ -46,11 +46,40 @@ const addPet = async (request: Request, response: Response) => {
         adopted,
       ]
     );
-    return response.status(200).json({Message: 'Success'});
+    return response.status(200).json({ Message: 'Success' });
   } catch (err: any) {
     console.error(err);
     response.status(400).json({ error: err.name });
   }
 };
 
-export { getAllPets, addPet };
+const getPetsByType = async (request: Request, response: Response) => {
+  const type = request.params.petType;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM pet WHERE type=$1',
+      [type]
+    );
+    return response.status(200).json(result.rows);
+  } catch (error: any) {
+    console.error(error)
+    return response.status(404).json({ error: error.name });
+  }
+};
+
+const getPetsByLocation = async (request: Request, response: Response) => {
+  const location = `${request.params.location}%`;
+  console.log(location)
+  try {
+    const result = await pool.query(
+      'SELECT * FROM pet WHERE city ILIKE $1',
+      [location]
+    );
+    return response.status(200).json(result.rows);
+  } catch (error: any) {
+    console.error(error)
+    return response.status(404).json({ error: error.name });
+  }
+};
+
+export { getAllPets, addPet, getPetsByType, getPetsByLocation };
