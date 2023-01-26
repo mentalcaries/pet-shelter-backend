@@ -69,16 +69,17 @@ const getPetsByType = async (request: Request, response: Response) => {
 
 const getPetsByLocation = async (request: Request, response: Response) => {
   const location = `${request.params.location}%`;
-  console.log(location)
   try {
     const result = await pool.query(
       'SELECT * FROM pet WHERE city ILIKE $1',
       [location]
     );
+
+    if(result.rows.length < 1) throw new Error("No pets found");
+    
     return response.status(200).json(result.rows);
   } catch (error: any) {
-    console.error(error)
-    return response.status(404).json({ error: error.name });
+    return response.status(404).json({ error: 'Nothing found in this city' });
   }
 };
 

@@ -1,13 +1,15 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from 'dotenv'
+import express, { Express, Request, Response } from 'express';
+import dotenv from 'dotenv';
+const cors = require('cors');
 
 dotenv.config();
 
 const bodyParser = require('body-parser');
 
-const mainRouter = require('./routes/index')
+const mainRouter = require('./routes/index');
 
 const app = express();
+app.use(cors());
 
 const PORT = process.env.SERVER_PORT;
 
@@ -18,8 +20,8 @@ app.use(
   })
 );
 
-app.use('/', mainRouter)
+app.use('/', mainRouter);
 
-app.listen(PORT, ()=>{
-  console.log(`🚀 Server running on ${PORT}`)
-})
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on ${PORT}`);
+});
