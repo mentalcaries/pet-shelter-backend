@@ -7,5 +7,5 @@ module.exports = new Pool({
   host: PGHOST,
   database: PGDATABASE,
   password: PGPASSWORD,
-  port: 5432,
+  port: PGPORT,
 });

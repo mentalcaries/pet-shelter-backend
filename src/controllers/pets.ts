@@ -4,7 +4,7 @@ const pool = require('../db');
 
 const getAllPets = async (request: Request, response: Response) => {
   try {
-    const results = await pool.query('SELECT * from pet');
+    const results = await pool.query('SELECT * from pets');
     return response.status(200).json(results.rows);
   } catch (err: any) {
     console.error(err);
@@ -30,7 +30,7 @@ const addPet = async (request: Request, response: Response) => {
 
   try {
     const result = await pool.query(
-      'INSERT INTO pet (name, age, type, gender, city, country, shelterId, breed, photo, vaccinated, neutered, adopted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+      'INSERT INTO pets (name, age, type, gender, city, country, shelterId, breed, photo, vaccinated, neutered, adopted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
       [
         name,
         age,
@@ -46,7 +46,7 @@ const addPet = async (request: Request, response: Response) => {
         adopted,
       ]
     );
-    return response.status(200).json({ Message: 'Success' });
+    return response.status(200).json({ Message: 'Success', result: result.rows});
   } catch (err: any) {
     console.error(err);
     response.status(400).json({ error: err.name });
@@ -57,7 +57,7 @@ const getPetsByType = async (request: Request, response: Response) => {
   const type = request.params.petType;
   try {
     const result = await pool.query(
-      'SELECT * FROM pet WHERE type=$1',
+      'SELECT * FROM pets WHERE type=$1',
       [type]
     );
     return response.status(200).json(result.rows);
@@ -71,7 +71,7 @@ const getPetsByLocation = async (request: Request, response: Response) => {
   const location = `${request.params.location}%`;
   try {
     const result = await pool.query(
-      'SELECT * FROM pet WHERE city ILIKE $1',
+      'SELECT * FROM pets WHERE city ILIKE $1',
       [location]
     );
 
