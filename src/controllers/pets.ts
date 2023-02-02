@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+const AppError = require('../utils/appError');
 
 const pool = require('../db');
 
@@ -46,37 +47,41 @@ const addPet = async (request: Request, response: Response) => {
         adopted,
       ]
     );
-    return response.status(200).json({ Message: 'Success', result: result.rows});
+    return response
+      .status(200)
+      .json({ Message: 'Success', result: result.rows });
   } catch (err: any) {
     console.error(err);
     response.status(400).json({ error: err.name });
   }
 };
 
-const getPetsByType = async (request: Request, response: Response) => {
+const getPetsByType = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
   const type = request.params.petType;
   try {
-    const result = await pool.query(
-      'SELECT * FROM pets WHERE type=$1',
-      [type]
-    );
-    return response.status(200).json(result.rows);
-  } catch (error: any) {
-    console.error(error)
-    return response.status(404).json({ error: error.name });
+    const result = await pool.query('SELECT * FROM pets WHERE type=$1', [type]);
+
+    if (result.rows.length === 0) {
+      throw new AppError('No Pets found', 404);
+    } else return response.status(200).json(result.rows);
+  } catch (err) {
+    next(err);
   }
 };
 
 const getPetsByLocation = async (request: Request, response: Response) => {
   const location = `${request.params.location}%`;
   try {
-    const result = await pool.query(
-      'SELECT * FROM pets WHERE city ILIKE $1',
-      [location]
-    );
+    const result = await pool.query('SELECT * FROM pets WHERE city ILIKE $1', [
+      location,
+    ]);
 
-    if(result.rows.length < 1) throw new Error("No pets found");
-    
+    if (result.rows.length < 1) throw new Error('No pets found');
+
     return response.status(200).json(result.rows);
   } catch (error: any) {
     return response.status(404).json({ error: 'Nothing found in this city' });
