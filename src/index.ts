@@ -1,7 +1,8 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
-const AppError = require('./utils/appError')
 const cors = require('cors');
+const AppError = require('./utils/appError')
+const globalErrorHandler = require('./utils/errorController')
 
 dotenv.config();
 
@@ -24,18 +25,11 @@ app.use(
 app.use('/', mainRouter);
 
 app.all('*',(req, res, next)=> {
-  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404))
+  console.log(req.method)
+  next(new AppError(`Cannot ${req.method} to  ${req.originalUrl} on this server`, 404))
 } )
 
-app.use((err: typeof AppError, req: Request, res: Response, next: NextFunction) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message
-  })
-})
+app.use(globalErrorHandler)
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on ${PORT}`);
