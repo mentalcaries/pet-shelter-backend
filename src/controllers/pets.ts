@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
 const pool = require('../db');
 
@@ -56,36 +57,30 @@ const addPet = async (request: Request, response: Response) => {
   }
 };
 
-const getPetsByType = async (
-  request: Request,
-  response: Response,
-  next: NextFunction
-) => {
-  const type = request.params.petType;
-  try {
+const getPetsByType = catchAsync(
+  async (request: Request, response: Response, next: NextFunction) => {
+    const type = request.params.petType;
+
     const result = await pool.query('SELECT * FROM pets WHERE type=$1', [type]);
 
     if (result.rows.length === 0) {
-      throw new AppError('No Pets found', 404);
+      throw new AppError('No Pets match this type', 404);
     } else return response.status(200).json(result.rows);
-  } catch (err) {
-    next(err);
   }
-};
+);
 
-const getPetsByLocation = async (request: Request, response: Response) => {
-  const location = `${request.params.location}%`;
-  try {
+const getPetsByLocation = catchAsync(
+  async (request: Request, response: Response, next: NextFunction) => {
+    const location = `${request.params.location}%`;
+
     const result = await pool.query('SELECT * FROM pets WHERE city ILIKE $1', [
       location,
     ]);
 
-    if (result.rows.length < 1) throw new Error('No pets found');
-
-    return response.status(200).json(result.rows);
-  } catch (error: any) {
-    return response.status(404).json({ error: 'Nothing found in this city' });
+    if (result.rows.length === 0) {
+      throw new AppError('No Pets found in this city', 404);
+    } else return response.status(200).json(result.rows);
   }
-};
+);
 
 export { getAllPets, addPet, getPetsByType, getPetsByLocation };
