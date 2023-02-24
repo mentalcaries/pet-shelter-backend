@@ -4,38 +4,38 @@ const catchAsync = require('../utils/catchAsync');
 
 const pool = require('../db');
 
-const getAllPets = async (request: Request, response: Response) => {
-  try {
+const getAllPets = catchAsync(
+  async (request: Request, response: Response, next: NextFunction) => {
     const results = await pool.query('SELECT * from pets');
+    if (results.rows.length === 0) {
+      return next(new AppError('No Pets found', 404));
+    }
     return response.status(200).json(results.rows);
-  } catch (err: any) {
-    console.error(err);
-    response.status(400).json({ error: err.name });
   }
-};
+);
 
-const addPet = async (request: Request, response: Response) => {
-  const {
-    name,
-    age,
-    type,
-    gender,
-    city,
-    country,
-    shelterId,
-    breed,
-    photo,
-    vaccinated,
-    neutered,
-    adopted,
-  } = request.body;
+const addPet = catchAsync(
+  async (request: Request, response: Response, next: NextFunction) => {
+    const {
+      name,
+      birthDate,
+      type,
+      gender,
+      city,
+      country,
+      shelterId,
+      breed,
+      photo,
+      vaccinated,
+      neutered,
+      adopted,
+    } = request.body;
 
-  try {
     const result = await pool.query(
-      'INSERT INTO pets (name, age, type, gender, city, country, shelterId, breed, photo, vaccinated, neutered, adopted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+      'INSERT INTO pets (name, "birthDate", type, gender, city, country, "shelterId", breed, photo, vaccinated, neutered, adopted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
       [
         name,
-        age,
+        birthDate,
         type,
         gender,
         city,
@@ -48,14 +48,15 @@ const addPet = async (request: Request, response: Response) => {
         adopted,
       ]
     );
+
+    if (!result) {
+      return next(new AppError(`Could not add pet`, 400));
+    }
     return response
       .status(200)
       .json({ Message: 'Success', result: result.rows });
-  } catch (err: any) {
-    console.error(err);
-    response.status(400).json({ error: err.name });
   }
-};
+);
 
 const getPetsByType = catchAsync(
   async (request: Request, response: Response, next: NextFunction) => {
@@ -64,7 +65,7 @@ const getPetsByType = catchAsync(
     const result = await pool.query('SELECT * FROM pets WHERE type=$1', [type]);
 
     if (result.rows.length === 0) {
-      throw new AppError('No Pets match this type', 404);
+      return next(new AppError(`No results found matching ${type}`, 404));
     } else return response.status(200).json(result.rows);
   }
 );
@@ -78,7 +79,7 @@ const getPetsByLocation = catchAsync(
     ]);
 
     if (result.rows.length === 0) {
-      throw new AppError('No Pets found in this city', 404);
+      return next(new AppError('No Pets found for this city', 404));
     } else return response.status(200).json(result.rows);
   }
 );
