@@ -9,7 +9,7 @@ CREATE TABLE "pets" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "name" TEXT NOT NULL,
-    "age" INTEGER NOT NULL,
+    "birthDate" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "gender" TEXT NOT NULL,
     "city" TEXT NOT NULL,

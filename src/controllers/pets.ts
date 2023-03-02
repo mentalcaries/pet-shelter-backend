@@ -2,14 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-const pool = require('../db');
+const pool = require('../model/index');
 
 const getAllPets = catchAsync(
   async (request: Request, response: Response, next: NextFunction) => {
     const results = await pool.query('SELECT * from pets');
-    if (results.rows.length === 0) {
-      return next(new AppError('No Pets found', 404));
-    }
+    
     return response.status(200).json(results.rows);
   }
 );

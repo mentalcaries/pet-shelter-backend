@@ -16,7 +16,7 @@ const sendProdError = (res: Response, err: typeof AppError) => {
   }
 };
 
-const sendDevError = (res: Response, err: typeof AppError) => {
+const sendDevError = (err: typeof AppError, res: Response) => {
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -35,8 +35,8 @@ module.exports = (
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    sendDevError(res, err);
+    sendDevError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    sendProdError(res, err);
+    sendProdError(err, res);
   }
 };
