@@ -14,7 +14,7 @@ model Pet {
   id          String      @id @default(uuid())
   createdAt   DateTime @default(now())
   name        String
-  age         Int
+  birthDate   String
   type        String
   gender      String    
   city        String

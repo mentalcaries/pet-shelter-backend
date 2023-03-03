@@ -1,5 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import { PrismaClient } from '@prisma/client';
 const cors = require('cors');
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./utils/errorController')
@@ -10,6 +11,7 @@ const bodyParser = require('body-parser');
 
 const mainRouter = require('./routes/index');
 
+const prisma = new PrismaClient();
 const app = express();
 app.use(cors());
 
