@@ -47,7 +47,6 @@ const addPet = catchAsync(
       },
     });
 
-    console.log(result);
     if (!result) {
       return next(new AppError(`Could not add pet`, 400));
     }
@@ -76,7 +75,6 @@ const getPetsByLocation = catchAsync(
     const result = await prisma.pet.findMany({
       where: { city: { startsWith: petLocation, mode: 'insensitive' } },
     });
-
     if (result.length === 0) {
       return next(new AppError('No Pets found for this city', 404));
     } else return response.status(200).json(result);
